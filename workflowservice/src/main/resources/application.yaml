@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: workflow-service
+
+  sql:
+    init:
+      mode: always
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/workflow_db
+    username: postgres
+    password: postgres
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
