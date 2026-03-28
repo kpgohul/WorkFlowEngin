@@ -1,22 +1,19 @@
-package com.friends.workflowservice.entity;
+package com.friends.workflowservice.dto.workflow;
 
 import com.friends.workflowservice.appconstant.workflow.WorkflowStatus;
+import com.friends.workflowservice.dto.common.UpdateStepRuleRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "workflow")
-public class Workflow {
-    @Id
+public class UpdateWorkflowRequest {
     private Long id;
     private Long workflowTypeId;
     private String name;
@@ -24,13 +21,5 @@ public class Workflow {
     private WorkflowStatus status;
     private Integer version;
     private Boolean isActive;
-    @CreatedBy
-    private Long createdBy;
-    @LastModifiedBy
-    private Long updatedBy;
-    @CreatedDate
-    private Instant createdAt;
-    @LastModifiedDate
-    private Instant updatedAt;
-
+    private List<UpdateStepRuleRequest> stepRule;
 }

@@ -1,0 +1,91 @@
+//Create Workflow type
+{
+    "id": 1000000003,
+    "code": "LEAVE_REQUEST",
+    "name": "Employee Leave Request",
+    "description": "Workflow for handling employee leave approvals",
+    "status": "ACTIVE",
+    "version": 1,
+    "fields": [
+        {
+            "id": 1000000001,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "employeeId",
+            "fieldLabel": "Employee ID",
+            "fieldType": "STRING",
+            "isRequired": true,
+            "allowedValues": null,
+            "defaultValue": "EMP001",
+            "validationRegex": null,
+            "displayOrder": 1
+        },
+        {
+            "id": 1000000002,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "leaveType",
+            "fieldLabel": "Leave Type",
+            "fieldType": "ENUM",
+            "isRequired": true,
+            "allowedValues": [
+                "SICK",
+                "CASUAL",
+                "EARNED"
+            ],
+            "defaultValue": "CASUAL",
+            "validationRegex": null,
+            "displayOrder": 2
+        },
+        {
+            "id": 1000000003,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "startDate",
+            "fieldLabel": "Start Date",
+            "fieldType": "DATE",
+            "isRequired": true,
+            "allowedValues": null,
+            "defaultValue": "2026-04-01",
+            "validationRegex": null,
+            "displayOrder": 3
+        },
+        {
+            "id": 1000000004,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "endDate",
+            "fieldLabel": "End Date",
+            "fieldType": "DATE",
+            "isRequired": true,
+            "allowedValues": null,
+            "defaultValue": "2026-04-05",
+            "validationRegex": null,
+            "displayOrder": 4
+        },
+        {
+            "id": 1000000005,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "reason",
+            "fieldLabel": "Reason",
+            "fieldType": "STRING",
+            "isRequired": false,
+            "allowedValues": null,
+            "defaultValue": "Personal work",
+            "validationRegex": null,
+            "displayOrder": 5
+        },
+        {
+            "id": 1000000006,
+            "workflowTypeId": 1000000003,
+            "fieldKey": "isHalfDay",
+            "fieldLabel": "Half Day",
+            "fieldType": "BOOLEAN",
+            "isRequired": false,
+            "allowedValues": null,
+            "defaultValue": "false",
+            "validationRegex": null,
+            "displayOrder": 6
+        }
+    ],
+    "createdAt": "2026-03-28T09:07:49.595901Z",
+    "updatedAt": "2026-03-28T09:07:49.595901Z",
+    "createdBy": null,
+    "updatedBy": null
+}

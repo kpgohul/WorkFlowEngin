@@ -1,6 +1,6 @@
 package com.friends.workflowservice.entity;
 
-import com.friends.workflowservice.appconstant.workflow.WorkflowStatus;
+import com.friends.workflowservice.appconstant.workflowtype.WorkflowTypeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,23 +14,23 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "workflow")
-public class Workflow {
+@Table(name = "workflow_type")
+public class WorkflowType {
+
     @Id
     private Long id;
-    private Long workflowTypeId;
-    private String name;
-    private String description;
-    private WorkflowStatus status;
+    private String code; //EMPLOYEE_ONBOARDING, LEAVE_REQUEST, ETC
+    private String name; //Employee Onboarding, Leave Request, etc //Human Readabble
+    private String description; //Optional
+    private WorkflowTypeStatus status;
     private Integer version;
-    private Boolean isActive;
-    @CreatedBy
-    private Long createdBy;
-    @LastModifiedBy
-    private Long updatedBy;
     @CreatedDate
     private Instant createdAt;
     @LastModifiedDate
     private Instant updatedAt;
+    @CreatedBy
+    private Long createdBy;
+    @LastModifiedBy
+    private Long updatedBy;
 
 }
