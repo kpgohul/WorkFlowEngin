@@ -1,6 +1,6 @@
 package com.friends.workflowservice.entity;
 
-import com.friends.workflowservice.appconstant.workflowtype.WorkflowFieldType;
+import com.friends.workflowservice.appconstant.WorkflowFieldType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.Instant;
 import java.util.List;
 
 @Data

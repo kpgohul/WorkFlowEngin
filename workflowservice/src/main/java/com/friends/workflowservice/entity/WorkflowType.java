@@ -1,6 +1,6 @@
 package com.friends.workflowservice.entity;
 
-import com.friends.workflowservice.appconstant.workflowtype.WorkflowTypeStatus;
+import com.friends.workflowservice.appconstant.WorkflowTypeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

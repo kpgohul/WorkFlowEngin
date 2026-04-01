@@ -1,6 +1,6 @@
 package com.friends.workflowservice.entity;
 
-import com.friends.workflowservice.appconstant.steprule.RuleFailureHandlerType;
+import com.friends.workflowservice.appconstant.RuleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,12 +15,12 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @Table(name = "workflow_rule")
 public class WorkflowRule {
+
     @Id
     @ReadOnlyProperty
     private Long id;
     private Long stepId;
-    private String ruleExpression;
-    private RuleFailureHandlerType failureHandlerType;
-    private String nextStepCodeOnFailure;
+    private RuleType ruleType;
+    private String ruleConfig;
 
 }
