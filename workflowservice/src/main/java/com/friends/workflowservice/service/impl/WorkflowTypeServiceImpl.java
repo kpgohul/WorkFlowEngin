@@ -26,8 +26,6 @@ public class WorkflowTypeServiceImpl implements WorkflowTypeService {
     private final WorkflowTypeRepository typeRepository;
     private final TransactionalOperator transactionalOperator;
 
-    // code and name should be unique against the existing one
-
     @Override
     public Mono<WorkflowTypeResponse> createWorkflowType(Mono<CreateWorkflowTypeRequest> reqMono) {
         return reqMono.flatMap(req -> {

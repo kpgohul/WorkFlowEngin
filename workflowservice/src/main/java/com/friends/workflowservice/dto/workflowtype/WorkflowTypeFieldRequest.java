@@ -1,6 +1,6 @@
 package com.friends.workflowservice.dto.workflowtype;
 
-import com.friends.workflowservice.appconstant.workflowtype.WorkflowFieldType;
+import com.friends.workflowservice.appconstant.WorkflowFieldType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

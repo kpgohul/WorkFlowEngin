@@ -1,52 +1,46 @@
 package com.friends.workflowservice.mapper;
 
-import com.friends.workflowservice.dto.step.CreateStepRequest;
-import com.friends.workflowservice.dto.step.StepResponse;
-import com.friends.workflowservice.dto.step.UpdateStepRequest;
+import com.friends.workflowservice.dto.common.WorkflowStepRuleResponse;
+import com.friends.workflowservice.dto.workflowrule.WorkflowRuleResponse;
+import com.friends.workflowservice.dto.workflowstep.WorkflowStepRequest;
+import com.friends.workflowservice.dto.workflowstep.WorkflowStepResponse;
 import com.friends.workflowservice.entity.WorkflowStep;
+import com.friends.workflowservice.util.step.WorkflowStepUtil;
 
 public class StepMapper {
 
-    public static WorkflowStep toEntity(CreateStepRequest request, Long workflowId){
+    public static WorkflowStep toEntity(Long workflowId, WorkflowStepRequest request){
         return WorkflowStep.builder()
+                .workflowId(workflowId)
                 .name(request.getName())
                 .stepCode(request.getStepCode())
-                .additionInfo(request.getAdditionInfo())
-                .status(request.getStatus())
-                .stepOrder(request.getStepOrder())
-                .notifyTo(request.getNotifyTo())
-                .workflowId(workflowId)
-                .timeOutInMillis(request.getTimeOutInMillis())
-                .stepType(request.getStepType())
+                .stepLine(request.getStepLine())
+                .isLast(request.getIsLast())
+                .stepTimeoutInMillis(request.getStepTimeoutInMillis())
                 .build();
     }
 
-    public static WorkflowStep toEntity(UpdateStepRequest request, Long workflowId){
-        return WorkflowStep.builder()
-                .name(request.getName())
-                .stepCode(request.getStepCode())
-                .additionInfo(request.getAdditionInfo())
-                .status(request.getStatus())
-                .stepOrder(request.getStepOrder())
-                .notifyTo(request.getNotifyTo())
-                .workflowId(workflowId)
-                .timeOutInMillis(request.getTimeOutInMillis())
-                .stepType(request.getStepType())
-                .build();
-    }
-
-    public static StepResponse toResponse(WorkflowStep step){
-        return StepResponse.builder()
+    public static WorkflowStepResponse toResponse(WorkflowStep step){
+        return WorkflowStepResponse.builder()
                 .id(step.getId())
                 .name(step.getName())
-                .stepCode(step.getStepCode())
-                .additionInfo(step.getAdditionInfo())
-                .status(step.getStatus())
-                .stepOrder(step.getStepOrder())
-                .notifyTo(step.getNotifyTo())
                 .workflowId(step.getWorkflowId())
-                .timeOutInMillis(step.getTimeOutInMillis())
-                .stepType(step.getStepType())
+                .stepCode(step.getStepCode())
+                .stepLine(step.getStepLine())
+                .isLast(step.getIsLast())
+                .stepTimeoutInMillis(step.getStepTimeoutInMillis())
                 .build();
+    }
+
+    public static WorkflowStepRuleResponse toStepRuleResponse(WorkflowStep step, WorkflowRuleResponse rule) {
+        return WorkflowStepRuleResponse.builder()
+                .step(toResponse(step))
+                .rule(rule)
+                .build();
+    }
+
+    public static WorkflowStepRequest normalizeStepRequest(WorkflowStepRequest step) {
+        step.setStepCode(WorkflowStepUtil.normalizeStepCode(step.getStepCode()));
+        return step;
     }
 }

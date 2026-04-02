@@ -1,13 +1,13 @@
 package com.friends.workflowservice.service.impl;
 
-import com.friends.workflowservice.appconstant.workflowtype.WorkflowFieldType;
+import com.friends.workflowservice.appconstant.WorkflowFieldType;
 import com.friends.workflowservice.dto.workflowtype.*;
 import com.friends.workflowservice.entity.WorkflowTypeField;
 import com.friends.workflowservice.exception.ResourceNotFoundException;
 import com.friends.workflowservice.mapper.WorkflowTypeFieldMapper;
 import com.friends.workflowservice.repo.WorkflowTypeFieldRepository;
 import com.friends.workflowservice.service.WorkflowTypeFieldService;
-import com.friends.workflowservice.util.JsonUtils;
+import com.friends.workflowservice.util.common.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -23,12 +23,6 @@ import java.util.stream.Collectors;
 public class WorkflowTypeFieldServiceImpl implements WorkflowTypeFieldService {
 
     private final WorkflowTypeFieldRepository fieldRepository;
-
-    // Key and Label should be unique
-    //Display order should be unique and sequential
-    //default value should match with field type
-    // if enum then allowed values should be provided and default value should be part of allowed values
-    //Validation regex should be valid regex pattern
 
     @Override
     public Mono<List<WorkflowTypeFieldResponse>> createWorkflowTypeFields(Long workflowTypeId, Mono<List<WorkflowTypeFieldRequest>> requests) {

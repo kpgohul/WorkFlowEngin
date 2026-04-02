@@ -1,7 +1,7 @@
 package com.friends.workflowservice.dto.workflow;
 
-import com.friends.workflowservice.appconstant.workflow.WorkflowStatus;
-import com.friends.workflowservice.dto.common.CreateStepRuleRequest;
+import com.friends.workflowservice.appconstant.WorkflowStatus;
+import com.friends.workflowservice.dto.common.WorkflowStepRuleRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,5 +20,5 @@ public class CreateWorkflowRequest {
     private WorkflowStatus status;
     private Integer version;
     private Boolean isActive;
-    private List<CreateStepRuleRequest> stepRule;
+    private List<WorkflowStepRuleRequest> stepRule;
 }
