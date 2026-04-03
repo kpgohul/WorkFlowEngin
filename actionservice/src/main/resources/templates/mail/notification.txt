@@ -1,0 +1,7 @@
+Notification: [[${title}]]
+
+Execution: [[${executionId}]]
+Execution Step: [[${executionStepId}]]
+
+[[${message}]]
+

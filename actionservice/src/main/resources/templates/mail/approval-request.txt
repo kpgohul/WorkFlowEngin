@@ -1,0 +1,13 @@
+Approval required: [[${actionName}]]
+
+Execution: [[${executionId}]]
+Execution Step: [[${executionStepId}]]
+
+[[${message}]]
+
+Approve:
+[[${approveUrl}]]
+
+Reject:
+[[${rejectUrl}]]
+
