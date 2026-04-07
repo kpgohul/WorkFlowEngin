@@ -22,6 +22,24 @@ spring:
     username: postgres
     password: your_password
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_ISSUER_URI:http://localhost:9099}
+
+      client:
+        registration:
+          actionservice:
+            provider: authserver
+            client-id: ${AUTH_CLIENT_SERVICE_ID:serviceaccount}
+            client-secret: ${AUTH_CLIENT_SERVICE_SECRET:ServiceSecret}
+            authorization-grant-type: client_credentials
+            scope: service
+        provider:
+          authserver:
+            issuer-uri: http://localhost:9099
+
   sql:
     init:
       mode: always
@@ -38,3 +56,7 @@ app:
   mail:
     from: your-email@gmail.com
     approval-base-url: http://localhost:8080/api/approval/respond
+
+clients:
+  userservice:
+    base-url: http://localhost:9095

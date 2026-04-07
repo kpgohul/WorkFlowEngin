@@ -6,7 +6,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 
 @EntityScan(basePackages = "com.friends.workflowservice.entity")
-@EnableR2dbcAuditing
+@EnableR2dbcAuditing(auditorAwareRef = "reactiveAuditorAware")
 @SpringBootApplication
 public class WorkFlowServiceApplication {
 

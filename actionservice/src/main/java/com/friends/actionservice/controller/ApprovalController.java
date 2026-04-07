@@ -1,5 +1,6 @@
 package com.friends.actionservice.controller;
 
+import com.friends.actionservice.path.ApiRoutes;
 import com.friends.actionservice.service.ApprovalService;
 import com.friends.actionservice.service.ApprovalService.ApprovalResult;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 @Controller
-@RequestMapping("/api/approval")
+@RequestMapping(ApiRoutes.BASE_APPROVAL)
+// Resolves to /api/v1/approval
 @RequiredArgsConstructor
 public class ApprovalController {
 

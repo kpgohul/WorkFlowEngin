@@ -4,6 +4,7 @@ import com.friends.workflowservice.dto.common.PagedResponse;
 import com.friends.workflowservice.dto.workflow.CreateWorkflowRequest;
 import com.friends.workflowservice.dto.workflow.UpdateWorkflowRequest;
 import com.friends.workflowservice.dto.workflow.WorkflowResponse;
+import com.friends.workflowservice.path.ApiRoutes;
 import com.friends.workflowservice.service.WorkflowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/workflows")
+@RequestMapping(ApiRoutes.BASE_WORKFLOWS)
+// Resolves to /api/v1/workflows
 @RequiredArgsConstructor
 public class WorkflowController {
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<th:block th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Auth</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/session-management.css}">
+    <!-- Include session management script for authenticated users -->
+    <script th:src="@{/js/session-manager.js}" sec:authorize="isAuthenticated()" defer></script>
+</th:block>
+
+<div th:fragment="alerts(error,message)">
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+</div>
+
+<div th:fragment="shell(title,subtitle)">
+    <main class="auth-shell">
+        <section class="auth-card">
+            <header class="auth-header">
+                <h1 class="auth-title" th:text="${title}">Title</h1>
+                <p class="auth-subtitle" th:text="${subtitle}">Subtitle</p>
+            </header>
+            <div class="auth-body">
+                <th:block th:insert="~{::content}"></th:block>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
+

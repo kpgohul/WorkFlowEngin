@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Sign In - FlowForge')}">
+    <title>Sign In - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <header class="auth-header">
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Sign in with your username or email</p>
+        </header>
+
+        <div class="auth-body">
+            <div th:if="${param.error}" class="alert alert-error">Invalid credentials. Please try again.</div>
+            <div th:if="${logoutNotice}" class="alert alert-success">You have been logged out.</div>
+            <div th:if="${sessionExpiredNotice}" class="alert alert-warning">Your session has expired. Please sign in again.</div>
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+            <form th:action="@{${@apiPaths.authLogin}}" method="post" class="auth-form">
+                <label for="username">Username or Email</label>
+                <input id="username" name="username" type="text" required autofocus placeholder="you@example.com">
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required placeholder="Enter your password">
+
+                <div class="row-end">
+                    <a th:href="@{${@apiPaths.authForgotPassword}}" class="text-link">Forgot password?</a>
+                </div>
+
+                <button type="submit">Sign In</button>
+            </form>
+
+            <p class="switch-link">Don't have an account? <a th:href="@{${@apiPaths.accountsRegister}}">Create one</a></p>
+            <!-- Only show logout option if user is authenticated -->
+            <p class="switch-link" sec:authorize="isAuthenticated()">
+                <a th:href="@{${@apiPaths.authLogout}}">Logout options</a>
+            </p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

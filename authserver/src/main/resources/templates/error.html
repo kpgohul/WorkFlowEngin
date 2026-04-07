@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Error - FlowForge')}">
+    <title>Error - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <header class="auth-header">
+            <h1 class="auth-title">Something went wrong</h1>
+            <p class="auth-subtitle">The link may be invalid or expired</p>
+        </header>
+
+        <div class="auth-body">
+            <!-- Show session expiry warning if parameter exists -->
+            <div th:if="${param.sessionExpired}" class="alert alert-warning">
+                Your session has expired. Please try again.
+            </div>
+
+            <div class="alert alert-error">
+                <p th:text="${error}">An unexpected error occurred. Please try again.</p>
+            </div>
+
+            <p class="switch-link"><a th:href="@{${@apiPaths.authForgotPassword}}">Try password reset again</a></p>
+            <p class="switch-link"><a th:href="@{${@apiPaths.authLogin}}">Return to login</a></p>
+
+            <!-- Only show logout option if user is authenticated -->
+            <p class="switch-link" sec:authorize="isAuthenticated()">
+                <a th:href="@{${@apiPaths.authLogout}}">Logout</a>
+            </p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -3,6 +3,7 @@ package com.friends.executionservice.controller;
 import com.friends.executionservice.dto.common.PagedResponse;
 import com.friends.executionservice.dto.workflowexecution.CreateWorkflowExecutionRequest;
 import com.friends.executionservice.dto.workflowexecution.WorkflowExecutionResponse;
+import com.friends.executionservice.path.ApiRoutes;
 import com.friends.executionservice.service.WorkflowExecutionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/executions")
+@RequestMapping(ApiRoutes.BASE_EXECUTIONS)
+// Resolves to /api/v1/executions
 @RequiredArgsConstructor
 public class ExecutionController {
 

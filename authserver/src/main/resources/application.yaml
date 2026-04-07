@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: authserver
+  config:
+    import: optional:configserver:,optional:file:.env.dev[.properties],optional:file:.env[.properties]
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:gohulkp42@gmail.com}
+    password: ${MAIL_PASSWORD:qdip eeht utno ylkr}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          debug: ${MAIL_DEBUG:true}
+          starttls:
+            enable: true
+
+
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:auth_account}
+    username: ${DATABASE_USERNAME:kprahul}
+    password: ${DATABASE_PASSWORD:kprahul143}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  task:
+    scheduling:
+      enabled: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:9099}
+  mail:
+    from: ${APP_MAIL_FROM:gohulkp42@gmail.com}
+
+auth:
+  client:
+    auth-code:
+      id: ${AUTH_CLIENT_AUTH_CODE_ID:AuthCodeClient}
+      secret: ${AUTH_CLIENT_AUTH_CODE_SECRET:OneDayOrDayOne}
+      redirect-uri: ${AUTH_CLIENT_AUTH_CODE_REDIRECT_URI:https://oauth.pstmn.io/v1/callback}
+    pkce:
+      id: ${AUTH_CLIENT_PKCE_ID:PKCEClient}
+      redirect-uri: ${AUTH_CLIENT_PKCE_REDIRECT_URI:https://oauth.pstmn.io/v1/callback}
+    service:
+      id: ${AUTH_CLIENT_SERVICE_ID:serviceaccount}
+      secret: ${AUTH_CLIENT_SERVICE_SECRET:ServiceSecret}
+  cors:
+    allowed-origins: ${AUTH_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: ${LOGPATTERN_CONSOLE:%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n}
+
+server:
+  port: ${SERVER_PORT:9099}

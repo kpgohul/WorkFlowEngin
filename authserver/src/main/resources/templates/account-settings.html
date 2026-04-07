@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Account Settings - FlowForge')}">
+    <title>Account Settings - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <header class="auth-header">
+            <h1 class="auth-title">Account settings</h1>
+            <p class="auth-subtitle">Manage your account safely</p>
+            <!-- Show welcome message with username if authenticated -->
+            <p class="auth-subtitle" sec:authorize="isAuthenticated()">
+                Welcome, <span sec:authentication="name"></span>
+            </p>
+        </header>
+
+        <div class="auth-body">
+            <div th:replace="~{fragments/layout :: alerts(${error}, ${message})}"></div>
+
+            <!-- Show session expiry warning if parameter exists -->
+            <div th:if="${param.sessionExpired}" class="alert alert-warning">
+                Your session has expired. Please refresh the page or log in again.
+            </div>
+
+            <section class="danger-zone">
+                <h2>Danger Zone</h2>
+                <p>This action is permanent. All associated account data will be removed.</p>
+
+                <form th:action="@{${@apiPaths.accountsDelete}}" th:object="${deleteAccountRequest}" method="post" class="auth-form"
+                      onsubmit="return confirm('Delete your account permanently? This action cannot be undone.');">
+                    <label for="password">Confirm with your password</label>
+                    <input id="password" th:field="*{password}" type="password" required placeholder="Enter current password">
+                    <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+                    <button type="submit" class="danger-btn">Delete My Account</button>
+                </form>
+            </section>
+
+            <!-- Only show logout option if user is authenticated -->
+            <div sec:authorize="isAuthenticated()">
+                <p class="switch-link"><a th:href="@{${@apiPaths.authLogout}}">Logout</a></p>
+            </div>
+
+            <!-- Show login option if not authenticated -->
+            <div sec:authorize="!isAuthenticated()">
+                <p class="switch-link"><a th:href="@{${@apiPaths.authLogin}}">Sign In</a></p>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
