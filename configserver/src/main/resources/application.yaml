@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: configserver
+
+  profiles:
+    active: native
+
+  cloud:
+    config:
+      native:
+        search-locations: classpath:/config
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  port: 9091
+
+logging:
+  level:
+    root: info
+  pattern:
+    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

@@ -7,7 +7,7 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 
 @SpringBootApplication
 @EnableR2dbcRepositories
-@EnableR2dbcAuditing
+@EnableR2dbcAuditing(auditorAwareRef = "reactiveAuditorAware")
 public class ExecutionserviceApplication {
 
 	public static void main(String[] args) {

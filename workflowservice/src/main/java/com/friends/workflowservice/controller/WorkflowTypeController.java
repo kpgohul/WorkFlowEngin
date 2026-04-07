@@ -4,6 +4,7 @@ import com.friends.workflowservice.dto.common.PagedResponse;
 import com.friends.workflowservice.dto.workflowtype.CreateWorkflowTypeRequest;
 import com.friends.workflowservice.dto.workflowtype.UpdateWorkflowTypeRequest;
 import com.friends.workflowservice.dto.workflowtype.WorkflowTypeResponse;
+import com.friends.workflowservice.path.ApiRoutes;
 import com.friends.workflowservice.service.WorkflowTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/workflow-types")
+@RequestMapping(ApiRoutes.BASE_WORKFLOW_TYPES)
+// Resolves to /api/v1/workflow-types
 @RequiredArgsConstructor
 public class WorkflowTypeController {
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Create Account - FlowForge')}">
+    <title>Create Account - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <header class="auth-header">
+            <h1 class="auth-title">Create account</h1>
+            <p class="auth-subtitle">Join FlowForge in a few seconds</p>
+        </header>
+
+        <div class="auth-body">
+            <div th:replace="~{fragments/layout :: alerts(${error}, ${message})}"></div>
+
+            <!-- Show session expiry warning if parameter exists -->
+            <div th:if="${param.sessionExpired}" class="alert alert-warning">
+                Your session has expired. Please complete the registration process again.
+            </div>
+
+            <form th:action="@{${@apiPaths.accountsRegister}}" th:object="${accountCreateRequest}" method="post" class="auth-form">
+                <label for="username">Username</label>
+                <input id="username" th:field="*{username}" type="text" required placeholder="john_doe" autofocus>
+                <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+
+                <label for="email">Email</label>
+                <input id="email" th:field="*{email}" type="email" required placeholder="john@domain.com">
+                <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+
+                <label for="password">Password</label>
+                <input id="password" th:field="*{password}" type="password" required placeholder="At least 8 characters">
+                <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+                <label for="confirmPassword">Confirm Password</label>
+                <input id="confirmPassword" th:field="*{confirmPassword}" type="password" required placeholder="Repeat password">
+                <p class="field-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
+
+                <button type="submit">Create Account</button>
+            </form>
+
+            <p class="switch-link">Already have an account? <a th:href="@{${@apiPaths.authLogin}}">Sign in</a></p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

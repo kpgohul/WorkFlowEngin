@@ -8,8 +8,8 @@ import com.friends.actionservice.appconstant.ApprovalStatus;
 import com.friends.actionservice.appconstant.ApprovalType;
 import com.friends.actionservice.path.ResourcePath;
 import com.friends.actionservice.service.ActionService;
-import com.friends.actionservice.service.MockUserDirectory;
-import com.friends.actionservice.userdto.MockUserContact;
+import com.friends.actionservice.service.UserServiceClient;
+import com.friends.actionservice.userdto.UserContact;
 import com.friends.actionservice.entity.ApprovalRequest;
 import com.friends.actionservice.entity.ExecutionAction;
 import com.friends.actionservice.kafka.KafkaActionResultProducer;
@@ -39,7 +39,7 @@ public class ActionServiceImpl implements ActionService {
     private final ApprovalRequestRepository approvalRequestRepository;
     private final KafkaActionResultProducer resultProducer;
     private final MailSenderUtil mailSenderUtil;
-    private final MockUserDirectory mockUserDirectory;
+    private final UserServiceClient userServiceClient;
     private final WebClient webClient;
     private final JsonUtils jsonUtils;
 
@@ -122,13 +122,13 @@ public class ActionServiceImpl implements ActionService {
 
                     Mono<Void> sendReq;
                     if (approvalType == ApprovalType.ANY) {
-                        List<MockUserContact> users = mockUserDirectory.findUsersByRoleAndTeam(
+                        List<UserContact> users = userServiceClient.findUsersByRoleAndTeam(
                                 approvalAction.getApproverRoleId(),
                                 approvalAction.getTeamId()
                         );
                         sendReq = Mono.fromRunnable(() -> users.forEach(u -> sendApprovalMessage(executionId, executionStepId, approvalAction, token, u)));
                     } else {
-                        MockUserContact user = mockUserDirectory.findUserById(approvalAction.getApproverId());
+                        UserContact user = userServiceClient.findUserById(approvalAction.getApproverId());
                         sendReq = Mono.fromRunnable(() -> sendApprovalMessage(executionId, executionStepId, approvalAction, token, user));
                     }
 
@@ -136,7 +136,7 @@ public class ActionServiceImpl implements ActionService {
                 });
     }
 
-    private void sendApprovalMessage(Long executionId, Long executionStepId, ApprovalAction action, String token, MockUserContact user) {
+    private void sendApprovalMessage(Long executionId, Long executionStepId, ApprovalAction action, String token, UserContact user) {
         if (user == null) {
             return;
         }
@@ -211,7 +211,7 @@ public class ActionServiceImpl implements ActionService {
 
         return executionActionRepository.save(execAction)
                 .flatMap(saved -> {
-                    MockUserContact user = mockUserDirectory.findUserById(notificationAction.getNotifyTo());
+                    UserContact user = userServiceClient.findUserById(notificationAction.getNotifyTo());
                     String subject = (notificationAction.getSubject() == null || notificationAction.getSubject().isBlank())
                             ? "Notification: " + safe(notificationAction.getName())
                             : notificationAction.getSubject();

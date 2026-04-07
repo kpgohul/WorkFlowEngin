@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Logout - FlowForge')}">
+    <title>Logout - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <header class="auth-header">
+            <h1 class="auth-title">Sign out</h1>
+            <p class="auth-subtitle">End your current session securely</p>
+        </header>
+
+        <div class="auth-body">
+            <div class="alert alert-success">You are about to sign out from this device.</div>
+
+            <form th:action="@{${@apiPaths.authLogout}}" method="post" class="auth-form">
+                <button type="submit">Logout Now</button>
+            </form>
+
+            <p class="switch-link"><a th:href="@{${@apiPaths.accountsHome}}">Cancel and return to home</a></p>
+        </div>
+    </section>
+</main>
+</body>
+</html>
+

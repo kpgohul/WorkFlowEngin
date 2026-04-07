@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Home - FlowForge')}">
+    <title>Home - FlowForge</title>
+</head>
+<body>
+<main class="auth-shell home-shell">
+    <section class="auth-card home-card">
+        <header class="auth-header home-header">
+            <div class="hero">
+                <div>
+                    <h1 class="auth-title">Welcome to FlowForge</h1>
+                    <p class="auth-subtitle">Your workflow hub is taking shape. Start here for now.</p>
+                </div>
+                <div class="hero-badge" sec:authorize="isAuthenticated()">
+                    <span>Signed in as</span>
+                    <strong sec:authentication="name"></strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="auth-body">
+            <div th:replace="~{fragments/layout :: alerts(${error}, ${message})}"></div>
+
+            <section class="home-grid">
+                <article class="home-panel">
+                    <h2>Quick actions</h2>
+                    <p>Jump to the essentials while the dashboard is under construction.</p>
+                    <div class="home-actions">
+                        <a th:href="@{${@apiPaths.accountsSettings}}" class="primary-link">Account settings</a>
+                        <a th:href="@{${@apiPaths.authLogout}}" class="text-link">Logout options</a>
+                    </div>
+                </article>
+
+                <article class="home-panel">
+                    <h2>What is next</h2>
+                    <ul class="home-list">
+                        <li>Connect your services and teams.</li>
+                        <li>Build your first automation flow.</li>
+                        <li>Track activity in one place.</li>
+                    </ul>
+                </article>
+
+                <article class="home-panel">
+                    <h2>System status</h2>
+                    <div class="home-status">
+                        <div>
+                            <span class="status-label">Account</span>
+                            <strong class="status-value">Active</strong>
+                        </div>
+                        <div>
+                            <span class="status-label">Security</span>
+                            <strong class="status-value">Protected</strong>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </section>
+</main>
+</body>
+</html>
+
