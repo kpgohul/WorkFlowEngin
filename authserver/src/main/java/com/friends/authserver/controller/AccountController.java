@@ -3,7 +3,7 @@ package com.friends.authserver.controller;
 import com.friends.authserver.dto.AccountCreateRequest;
 import com.friends.authserver.dto.DeleteAccountRequest;
 import com.friends.authserver.service.AccountService;
-import com.friends.authserver.util.routing.ApiRoutes;
+import com.friends.authserver.path.ApiRoutes;
 import com.friends.authserver.util.securityutil.AuthenticationHelper;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;

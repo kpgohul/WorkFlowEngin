@@ -12,12 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@SequenceGenerator(
-        name = "role_seq",
-        sequenceName = "role_seq",
-        initialValue = 1000000000,
-        allocationSize = 1
-)
+@SequenceGenerator(name = "role_seq", sequenceName = "role_seq", initialValue = 1000000000, allocationSize = 1)
 @Table(name = "roles", uniqueConstraints = @UniqueConstraint(name = "uk_role_name", columnNames = "name"))
 public class Role {
 

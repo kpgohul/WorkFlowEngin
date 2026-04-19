@@ -10,8 +10,8 @@ public interface WorkflowService {
 
     Mono<WorkflowResponse> createWorkflow(Mono<CreateWorkflowRequest> requestMono);
     Mono<WorkflowResponse> updateWorkflow(Mono<UpdateWorkflowRequest> requestMono);
-    Mono<WorkflowResponse> getWorkflowById(Long id);
-    Mono<PagedResponse<WorkflowResponse>> getAllWorkflows(int page, int size);
+    Mono<WorkflowResponse> getWorkflowById(Long id, boolean includeWorkflowType);
+    Mono<PagedResponse<WorkflowResponse>> getAllWorkflows(int page, int size, boolean includeWorkflowType);
     Mono<Void> deleteWorkflowById(Long id);
 }
 

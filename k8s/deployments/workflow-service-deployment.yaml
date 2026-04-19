@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-service
+  labels:
+    app: workflow-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workflow-service
+  template:
+    metadata:
+      labels:
+        app: workflow-service
+    spec:
+      initContainers:
+        - name: wait-for-infra
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - "until nc -z config-service 9091 && nc -z postgres-service 5432 && nc -z kafka 9092; do echo waiting for infra; sleep 3; done"
+      containers:
+        - name: workflow-service
+          image: workflow-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9094
+          env:
+            - name: CONFIG_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: global-config
+                  key: CONFIG_BASE_URL

@@ -1,7 +1,7 @@
 package com.friends.authserver.service.impl;
 
 import com.friends.authserver.service.EmailService;
-import com.friends.authserver.util.routing.ApiRoutes;
+import com.friends.authserver.path.ApiRoutes;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import java.lang.reflect.InvocationTargetException;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +44,7 @@ public class EmailServiceImpl implements EmailService {
             String content = templateEngine.process("email/password-reset", context);
             helper.setText(content, true);
             mailSender.send(message);
+            log.info("Sent password reset email to {}", to);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
@@ -68,6 +67,7 @@ public class EmailServiceImpl implements EmailService {
             String content = templateEngine.process("email/account-deletion", context);
             helper.setText(content, true);
             mailSender.send(message);
+            log.info("Sent account deletion confirmation email to {}", to);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }

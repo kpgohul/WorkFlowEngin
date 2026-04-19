@@ -1,0 +1,56 @@
+# =========================
+# BASIC SETUP
+# =========================
+replicaCount: 1
+
+# =========================
+# KRaft MODE (No Zookeeper)
+# =========================
+zookeeper:
+  enabled: false
+
+kraft:
+  enabled: true
+
+# =========================
+# LISTENERS
+# =========================
+listeners:
+  client:
+    protocol: PLAINTEXT
+
+# =========================
+# AUTH (DISABLED FOR DEV)
+# =========================
+auth:
+  clientProtocol: plaintext
+  interBrokerProtocol: plaintext
+
+# =========================
+# STORAGE (IMPORTANT EVEN FOR LOCAL)
+# =========================
+persistence:
+  enabled: true
+  size: 2Gi   # small size for local machine
+
+# =========================
+# RESOURCE LIMITS (MAC SAFE)
+# =========================
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 250m
+
+# =========================
+# LOGGING (REDUCE NOISE)
+# =========================
+logRetentionHours: 24
+logSegmentBytes: 1073741824  # 1GB
+
+# =========================
+# AUTO TOPIC CREATION (DEV FRIENDLY)
+# =========================
+autoCreateTopicsEnable: true

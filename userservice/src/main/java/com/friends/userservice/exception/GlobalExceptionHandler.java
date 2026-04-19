@@ -6,11 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -63,6 +67,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError()
                 .body(new ErrorResponseDto(request.getRequestURI(), HttpStatus.INTERNAL_SERVER_ERROR.name(),
                         "An unexpected error occurred", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleEnumError(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException ife) {
+            if (ife.getTargetType().isEnum()) {
+                String fieldName = ife.getPath().get(0).getFieldName();
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Invalid enum value");
+                errorResponse.put("field", fieldName);
+                if(ife.getTargetType().isEnum()){
+                    errorResponse.put("allowedValues", ife.getTargetType().getEnumConstants());
+                }
+                errorResponse.put("message", "Invalid value for '" + fieldName + "'");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+        }
+
+        Map<String, Object> defaultError = new HashMap<>();
+        defaultError.put("error", "Invalid request");
+        defaultError.put("message", "Malformed JSON or invalid data");
+        return ResponseEntity.badRequest().body(defaultError);
     }
 }
 

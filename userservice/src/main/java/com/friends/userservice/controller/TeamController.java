@@ -7,8 +7,6 @@ import com.friends.userservice.dto.response.TeamResponse;
 import com.friends.userservice.dto.response.UserAssignmentResponse;
 import com.friends.userservice.path.ApiRoutes;
 import com.friends.userservice.service.TeamService;
-import com.friends.userservice.service.UserService;
-import com.friends.userservice.util.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class TeamController {
 
     private final TeamService teamService;
-    private final UserService userService;
+//    private final UserService userService;
 
     /**
      * POST /teams — create a new team (creator becomes the owner)
@@ -30,10 +28,10 @@ public class TeamController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TeamResponse> createTeam(@Valid @RequestBody CreateTeamRequest request) {
-        Long accountId = SecurityUtils.getCurrentAccountId();
-        Long creatorUserId = userService.getUserByAccountId(accountId).getId();
+//        Long accountId = SecurityUtils.getCurrentAccountId();
+//        Long creatorUserId = userService.getUserByAccountId(accountId).getId();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(teamService.createTeam(request, creatorUserId));
+                .body(teamService.createTeam(request));
     }
 
     /**
@@ -60,18 +58,17 @@ public class TeamController {
      */
     @PostMapping("/assign")
     public ResponseEntity<UserAssignmentResponse> assignUser(@Valid @RequestBody AssignUserRequest request) {
-        Long accountId = SecurityUtils.getCurrentAccountId();
-        Long assignedByUserId = userService.getUserByAccountId(accountId).getId();
-        return ResponseEntity.ok(teamService.assignUser(request, assignedByUserId));
+//        Long accountId = SecurityUtils.getCurrentAccountId();
+        return ResponseEntity.ok(teamService.assignUser(request));
     }
 
     /**
      * DELETE /teams/remove/{userId} — remove a user's role assignment
      */
-    @DeleteMapping("/remove/{userId}")
+    @DeleteMapping("/remove/{accountId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> removeUserFromTeam(@PathVariable Long userId) {
-        teamService.removeUserFromTeam(userId);
+    public ResponseEntity<Void> removeUserFromTeam(@PathVariable Long accountId) {
+        teamService.removeUserFromTeam(accountId);
         return ResponseEntity.noContent().build();
     }
 
@@ -90,9 +87,24 @@ public class TeamController {
     /**
      * GET /teams/assignment/{userId} — get a specific user's assignment
      */
-    @GetMapping("/assignment/{userId}")
-    public ResponseEntity<UserAssignmentResponse> getAssignmentByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(teamService.getAssignmentByUserId(userId));
+    @GetMapping("/assignment/{accountId}")
+    public ResponseEntity<UserAssignmentResponse> getAssignmentByUserId(@PathVariable Long accountId) {
+        return ResponseEntity.ok(teamService.getAssignmentByAccountId(accountId));
+    }
+
+    /**
+     * GET /teams/users?teamId=1&roleId=2
+     * Get a list of users based on teamId and roleId.
+     * At least one parameter must be provided.
+     */
+    @GetMapping("/users")
+    public ResponseEntity<com.friends.userservice.dto.response.TeamUsersResponse> getUsersByTeamAndRole(
+            @RequestParam(required = false) Long teamId,
+            @RequestParam(required = false) Integer roleId) {
+        if (teamId == null && roleId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(teamService.getTeamUsers(teamId, roleId));
     }
 }
 

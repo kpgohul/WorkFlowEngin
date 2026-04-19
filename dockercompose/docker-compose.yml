@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  kafka:
+    image: my-kafka:1.0
+    container_name: kafka
+    ports:
+      - "9098:9098"   # ✅ FIXED (was wrong before)
+      - "9092:9092"   # optional (for debugging)
+      - "9093:9093"
+    environment:
+      KAFKA_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    volumes:
+      - ./config/server.properties:/opt/kafka/config/kraft/server.properties
+      - kafka-data:/var/lib/kafka/data
+
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: auth_account
+      POSTGRES_USER: kprahul
+      POSTGRES_PASSWORD: kprahul143
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  kafka-data:
+  postgres_data:

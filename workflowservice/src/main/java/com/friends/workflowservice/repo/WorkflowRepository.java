@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 public interface WorkflowRepository extends R2dbcRepository<Workflow, Long> {
 
     Mono<Boolean> existsByName(String name);
+    Mono<Boolean> existsByWorkflowTypeId(Long workflowTypeId);
 
     @Query("""
             SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END

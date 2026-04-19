@@ -13,13 +13,13 @@ public class KafkaProperties {
 
     @Data
     public static class Actions {
-        private String topic = "workflow-action-request";
-        private String groupId = "action-service-group";
+        private String topic;
+        private String groupId;
     }
 
     @Data
     public static class Results {
-        private String topic = "workflow-action-result";
+        private String topic;
     }
 }
 

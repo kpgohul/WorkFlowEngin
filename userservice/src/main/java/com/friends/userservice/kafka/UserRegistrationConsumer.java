@@ -1,6 +1,6 @@
 package com.friends.userservice.kafka;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.friends.userservice.dto.event.UserRegisteredEvent;
 import com.friends.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserRegistrationConsumer {
 
     private final UserService userService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
-    @KafkaListener(topics = "user.registered", groupId = "user-service-group")
+    @KafkaListener(
+            topics = "${app.kafka.topic.userRegistered}",
+            groupId = "${app.kafka.group.user}"
+    )
     @Transactional
     public void onUserRegistered(String message) {
         log.info("Received Kafka message on topic 'user.registered': {}", message);

@@ -6,10 +6,11 @@ import com.friends.actionservice.actionsdto.actions.*;
 import com.friends.actionservice.appconstant.ActionType;
 import com.friends.actionservice.appconstant.ApprovalStatus;
 import com.friends.actionservice.appconstant.ApprovalType;
+import com.friends.actionservice.appconstant.Channel;
 import com.friends.actionservice.path.ResourcePath;
 import com.friends.actionservice.service.ActionService;
-import com.friends.actionservice.service.UserServiceClient;
-import com.friends.actionservice.userdto.UserContact;
+import com.friends.actionservice.webclient.UserServiceClient;
+import com.friends.actionservice.userdto.UserRoleResponse;
 import com.friends.actionservice.entity.ApprovalRequest;
 import com.friends.actionservice.entity.ExecutionAction;
 import com.friends.actionservice.kafka.KafkaActionResultProducer;
@@ -17,11 +18,15 @@ import com.friends.actionservice.repo.ApprovalRequestRepository;
 import com.friends.actionservice.repo.ExecutionActionRepository;
 import com.friends.actionservice.util.JsonUtils;
 import com.friends.actionservice.util.MailSenderUtil;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -31,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ActionServiceImpl implements ActionService {
@@ -43,8 +49,8 @@ public class ActionServiceImpl implements ActionService {
     private final WebClient webClient;
     private final JsonUtils jsonUtils;
 
-    @Value("${app.mail.approval-base-url:http://localhost:8080/api/approval/respond}")
-    private String approvalBaseUrl;
+    @Value("${app.base-url}")
+    private String actionBase;
 
     @Override
     public Mono<Void> handleActionProcess(Long executionId, Long executionStepId, ActionRequest action) {
@@ -55,7 +61,7 @@ public class ActionServiceImpl implements ActionService {
             return Mono.error(new IllegalArgumentException("Invalid action payload"));
         }
 
-        return switch (action.getActionType()) {
+        Mono<Void> actionMono = switch (action.getActionType()) {
             case APPROVAL -> handleApprovalAction(executionId, executionStepId, (ApprovalAction) action);
             case AUTO_APPROVAL -> handleAutoApprovalAction(executionId, executionStepId, (AutoApprovalAction) action);
             case NOTIFICATION -> handleNotificationAction(executionId, executionStepId, (NotificationAction) action);
@@ -63,6 +69,17 @@ public class ActionServiceImpl implements ActionService {
             case DELAY -> handleDelayAction(executionId, executionStepId, (DelayAction) action);
             case TASK -> handleTaskAction(executionId, executionStepId, (TaskAction) action);
         };
+
+        return actionMono.onErrorResume(ex -> {
+            log.error("Exception occurred while executing action with ExecutionID: {}, StepID: {}", executionId, executionStepId, ex);
+            ActionResponse errorResponse = ActionResponse.builder()
+                    .executionId(executionId)
+                    .executionStepId(executionStepId)
+                    .isSuccess(false)
+                    .error(ex.getMessage() != null ? ex.getMessage() : "Unknown error occurred")
+                    .build();
+            return resultProducer.send(errorResponse);
+        });
     }
 
     @Override
@@ -74,7 +91,7 @@ public class ActionServiceImpl implements ActionService {
 
     private Mono<Void> handleApprovalAction(Long executionId, Long executionStepId, ApprovalAction approvalAction) {
         Instant now = Instant.now();
-
+        log.info("Received Approval Action with ExecutionID: {}, ExecutionStepID: {}, approvalAction: {}", executionId, executionStepId, approvalAction);
         // Per requirement:
         // - ANY: use teamId + roleId only
         // - ANY_ONE (specific): use approverId only
@@ -94,41 +111,52 @@ public class ActionServiceImpl implements ActionService {
             meta.put("approverId", approvalAction.getApproverId());
         }
 
+        boolean isMock = isMockChannel(approvalAction.getChannel());
+
         ExecutionAction execAction = ExecutionAction.builder()
                 .executionId(executionId)
                 .executionStepId(executionStepId)
                 .actionType(ActionType.APPROVAL)
-                .isActive(true)
+                .isActive(!isMock) // if mock, complete immediately
                 .actionMeta(jsonUtils.toJson(meta))
                 .initiatedAt(now)
-                .completedAt(null)
+                .completedAt(isMock ? now : null)
                 .build();
 
-        String token = UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString(); // for approval link
 
         return executionActionRepository.save(execAction)
                 .flatMap(saved -> {
                     ApprovalRequest approvalRequest = ApprovalRequest.builder()
                             .executionActionId(saved.getId())
                             .token(token)
-                            .status(ApprovalStatus.PENDING)
-                            .isApproved(null)
+                            .status(isMock ? ApprovalStatus.APPROVED : ApprovalStatus.PENDING)
+                            .isApproved(isMock ? true : null)
                             .approverId(approvalType == ApprovalType.ANY_ONE ? approvalAction.getApproverId() : null)
                             .createdAt(now)
-                            .respondedAt(null)
+                            .respondedAt(isMock ? now : null)
                             .build();
 
                     Mono<ApprovalRequest> createReq = approvalRequestRepository.save(approvalRequest);
 
                     Mono<Void> sendReq;
-                    if (approvalType == ApprovalType.ANY) {
-                        List<UserContact> users = userServiceClient.findUsersByRoleAndTeam(
+                    if (isMock) {
+                        // For mock channels, trigger the result back immediately to allow execution to continue
+                        ActionResponse mockResponse = ActionResponse.builder()
+                                .executionId(executionId)
+                                .executionStepId(executionStepId)
+                                .isSuccess(true)
+                                .message("MOCKED-RESULT: " + approvalAction.getChannel() + " auto-approved")
+                                .build();
+                        sendReq = resultProducer.send(mockResponse);
+                    } else if (approvalType == ApprovalType.ANY) {
+                        List<UserRoleResponse> users = userServiceClient.findUsersByRoleAndTeam(
                                 approvalAction.getApproverRoleId(),
                                 approvalAction.getTeamId()
                         );
                         sendReq = Mono.fromRunnable(() -> users.forEach(u -> sendApprovalMessage(executionId, executionStepId, approvalAction, token, u)));
                     } else {
-                        UserContact user = userServiceClient.findUserById(approvalAction.getApproverId());
+                        UserRoleResponse user = userServiceClient.findUserById(approvalAction.getApproverId());
                         sendReq = Mono.fromRunnable(() -> sendApprovalMessage(executionId, executionStepId, approvalAction, token, user));
                     }
 
@@ -136,12 +164,19 @@ public class ActionServiceImpl implements ActionService {
                 });
     }
 
-    private void sendApprovalMessage(Long executionId, Long executionStepId, ApprovalAction action, String token, UserContact user) {
+    private boolean isMockChannel(Channel channel) {
+        return channel == Channel.SMS 
+            || channel == Channel.WHATSAPP 
+            || channel == Channel.TELEGRAM;
+    }
+
+    private void sendApprovalMessage(Long executionId, Long executionStepId, ApprovalAction action, String token, UserRoleResponse user) {
         if (user == null) {
             return;
         }
-        String approveUrl = approvalBaseUrl + "?token=" + token + "&approval=accept" + "&approverId=" + user.getUserId();
-        String rejectUrl = approvalBaseUrl + "?token=" + token + "&approval=reject" + "&approverId=" + user.getUserId();
+        String approvalUrl = actionBase + "/api/v1/approval/respond";
+        String approveUrl = approvalUrl + "?token=" + token + "&approval=accept" + "&approverId=" + user.getId();
+        String rejectUrl = approvalUrl + "?token=" + token + "&approval=reject" + "&approverId=" + user.getId();
 
         String subject = (action.getSubject() == null || action.getSubject().isBlank())
                 ? "Approval required: " + safe(action.getName())
@@ -160,7 +195,7 @@ public class ActionServiceImpl implements ActionService {
         vars.put("approveUrl", approveUrl);
         vars.put("rejectUrl", rejectUrl);
 
-        String to = action.getChannel() == null || action.getChannel().name().equals("MAIL") ? user.getEmail() : user.getPhone();
+        String to = action.getChannel() == null || action.getChannel().name().equals("MAIL") ? user.getEmail() : user.getMobile();
         mailSenderUtil.send(action.getChannel(), to, subject, ResourcePath.MAIL_APPROVAL_REQUEST, vars);
     }
 
@@ -171,6 +206,7 @@ public class ActionServiceImpl implements ActionService {
 
     private Mono<Void> handleAutoApprovalAction(Long executionId, Long executionStepId, AutoApprovalAction autoApprovalAction) {
         Instant now = Instant.now();
+        log.info("Received Auto Approval Step with ExecutionID: {}, ExecutionStepIDL {}, AutoApprovalAction: {}", executionId, executionStepId, autoApprovalAction);
         ExecutionAction execAction = ExecutionAction.builder()
                 .executionId(executionId)
                 .executionStepId(executionStepId)
@@ -195,6 +231,7 @@ public class ActionServiceImpl implements ActionService {
 
     private Mono<Void> handleNotificationAction(Long executionId, Long executionStepId, NotificationAction notificationAction) {
         Instant now = Instant.now();
+        log.info("Received Notification Action with ExecutionID: {}, ExecutionStepID: {}, NotificationAction: {}", executionId, executionStepId, notificationAction);
         ExecutionAction execAction = ExecutionAction.builder()
                 .executionId(executionId)
                 .executionStepId(executionStepId)
@@ -211,7 +248,7 @@ public class ActionServiceImpl implements ActionService {
 
         return executionActionRepository.save(execAction)
                 .flatMap(saved -> {
-                    UserContact user = userServiceClient.findUserById(notificationAction.getNotifyTo());
+                    UserRoleResponse user = userServiceClient.findUserById(notificationAction.getNotifyTo());
                     String subject = (notificationAction.getSubject() == null || notificationAction.getSubject().isBlank())
                             ? "Notification: " + safe(notificationAction.getName())
                             : notificationAction.getSubject();
@@ -225,7 +262,7 @@ public class ActionServiceImpl implements ActionService {
                     vars.put("executionStepId", executionStepId);
                     vars.put("message", message);
 
-                    String to = notificationAction.getChannel() == null || notificationAction.getChannel().name().equals("MAIL") ? user.getEmail() : user.getPhone();
+                    String to = notificationAction.getChannel() == null || notificationAction.getChannel().name().equals("MAIL") ? user.getEmail() : user.getMobile();
                     return Mono.fromRunnable(() -> mailSenderUtil.send(notificationAction.getChannel(), to, subject, ResourcePath.MAIL_NOTIFICATION, vars))
                             .then(markCompletedAndSend(saved, true, "Notification sent", null));
                 });
@@ -233,6 +270,7 @@ public class ActionServiceImpl implements ActionService {
 
     private Mono<Void> handleTaskAction(Long executionId, Long executionStepId, TaskAction taskAction) {
         Instant now = Instant.now();
+        log.info("Received TaskAction with ExecutionID: {}, ExecutionStepID: {}, TaskAction: {}",executionId, executionStepId, taskAction);
         ExecutionAction execAction = ExecutionAction.builder()
                 .executionId(executionId)
                 .executionStepId(executionStepId)
@@ -257,6 +295,7 @@ public class ActionServiceImpl implements ActionService {
 
     private Mono<Void> handleWebHookAction(Long executionId, Long executionStepId, WebHookAction webHookAction) {
         Instant now = Instant.now();
+        log.info("Received WebHookAction with ExecutionID: {}, ExecutionStepID: {}, WebHookAction: {}",executionId, executionStepId, webHookAction);
         Map<String, Object> meta = new HashMap<>();
         meta.put("name", webHookAction.getName());
         meta.put("uri", webHookAction.getUri() != null ? webHookAction.getUri().toString() : "");
@@ -294,6 +333,7 @@ public class ActionServiceImpl implements ActionService {
     private Mono<Void> handleDelayAction(Long executionId, Long executionStepId, DelayAction delayAction) {
         Instant now = Instant.now();
         long ms = delayAction.getDelayDurationInMillis() == null ? 0L : delayAction.getDelayDurationInMillis();
+        log.info("Received DelayAction with ExecutionID: {}, ExecutionStepID: {}, DelayAction: {}",executionId, executionStepId, delayAction);
 
         ExecutionAction execAction = ExecutionAction.builder()
                 .executionId(executionId)

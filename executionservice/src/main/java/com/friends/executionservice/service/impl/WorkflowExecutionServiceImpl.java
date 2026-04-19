@@ -67,11 +67,18 @@ public class WorkflowExecutionServiceImpl implements WorkflowExecutionService {
     public Mono<WorkflowExecutionResponse> createWorkflowExecution(Mono<CreateWorkflowExecutionRequest> requestMono) {
         return requestMono.flatMap(request ->
             workflowServiceClient.getWorkflowById(request.getWorkflowId())
+                .onErrorResume(ex -> {
+                    // Log the error for diagnostics
+                    org.slf4j.LoggerFactory.getLogger(WorkflowExecutionServiceImpl.class)
+                        .error("Failed to fetch workflow from workflow service for id {}: {}", request.getWorkflowId(), ex.toString(), ex);
+                    // Return a user-friendly error
+                    return Mono.error(new IllegalStateException("Workflow service is unavailable or not responding. Please try again later.", ex));
+                })
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("Workflow", "id", request.getWorkflowId().toString())))
                 .flatMap(workflow -> {
                     validateInputPayload(request.getInputPayload(), workflow.getWorkflowType().getFields());
                     WorkflowExecution execution = WorkflowExecutionMapper.toEntity(request, workflow.getWorkflowTypeId(), workflow.getId());
-                    execution.setInitiatedBy(ThreadLocalRandom.current().nextLong(1_000_000_000L, 10_000_000_000L));
+//                    execution.setInitiatedBy();
                     execution.setStatus(ExecutionStatus.NOT_STARTED);
 
                     WorkflowStepRule firstStepRule = resolveFirstStepExecution(workflow);

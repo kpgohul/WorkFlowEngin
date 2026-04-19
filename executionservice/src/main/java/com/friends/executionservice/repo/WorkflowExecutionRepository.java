@@ -13,7 +13,8 @@ public interface WorkflowExecutionRepository extends R2dbcRepository<WorkflowExe
     Flux<WorkflowExecution> findAllByWorkflowId(Long workflowId);
 
     @Query("SELECT * FROM workflow_executions WHERE workflow_id = :workflowId LIMIT :size OFFSET :offset")
-    Flux<WorkflowExecution> findAllByWorkflowId(@Param("workflowId") Long workflowId, @Param("size") int size, @Param("offset") long offset);
+    Flux<WorkflowExecution> findAllByWorkflowId(@Param("workflowId") Long workflowId, @Param("size") int size,
+            @Param("offset") long offset);
 
     Mono<Long> countByWorkflowId(Long workflowId);
 
@@ -23,7 +24,8 @@ public interface WorkflowExecutionRepository extends R2dbcRepository<WorkflowExe
     Mono<Long> count();
 
     @Query("SELECT * FROM workflow_executions WHERE initiated_by = :initiatedBy LIMIT :size OFFSET :offset")
-    Flux<WorkflowExecution> findAllByInitiatedBy(@Param("initiatedBy") Long initiatedBy, @Param("size") int size, @Param("offset") long offset);
+    Flux<WorkflowExecution> findAllByInitiatedBy(@Param("initiatedBy") Long initiatedBy, @Param("size") int size,
+            @Param("offset") long offset);
 
     Mono<Long> countByInitiatedBy(Long initiatedBy);
 }

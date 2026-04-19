@@ -13,7 +13,7 @@ import com.friends.workflowservice.dto.workflowrule.WorkflowRuleRequest;
 import com.friends.workflowservice.dto.workflowrule.WorkflowRuleResponse;
 import com.friends.workflowservice.entity.WorkflowRule;
 import com.friends.workflowservice.util.common.JsonUtils;
-import tools.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 public class RuleMapper {
 

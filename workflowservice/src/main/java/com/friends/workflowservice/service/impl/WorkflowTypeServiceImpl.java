@@ -6,6 +6,7 @@ import com.friends.workflowservice.entity.WorkflowType;
 import com.friends.workflowservice.exception.ResourceAlreadyExistException;
 import com.friends.workflowservice.exception.ResourceNotFoundException;
 import com.friends.workflowservice.mapper.WorkflowTypeMapper;
+import com.friends.workflowservice.repo.WorkflowRepository;
 import com.friends.workflowservice.repo.WorkflowTypeRepository;
 import com.friends.workflowservice.service.WorkflowTypeFieldService;
 import com.friends.workflowservice.service.WorkflowTypeService;
@@ -24,6 +25,7 @@ public class WorkflowTypeServiceImpl implements WorkflowTypeService {
 
     private final WorkflowTypeFieldService fieldService;
     private final WorkflowTypeRepository typeRepository;
+    private final WorkflowRepository workflowRepository;
     private final TransactionalOperator transactionalOperator;
 
     @Override
@@ -96,7 +98,8 @@ public class WorkflowTypeServiceImpl implements WorkflowTypeService {
     @Override
     public Mono<WorkflowTypeResponse> getWorkflowTypeById(Long id) {
         return typeRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ResourceAlreadyExistException("WorkflowType", "id", id.toString())))
+                .doOnNext(type -> log.info("Workflow Type: {} --> {}", id, type))
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("WorkflowType", "id", id.toString())))
                 .flatMap(workflowType ->
                         fieldService.getWorkflowTypeFieldById(workflowType.getId())
                                 .map(fields -> {
@@ -145,8 +148,14 @@ public class WorkflowTypeServiceImpl implements WorkflowTypeService {
         Mono<Void> flow = typeRepository.findById(id)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("WorkflowType", "id", id.toString())))
                 .flatMap(existing ->
-                        fieldService.deleteWorkflowTypeFieldById(id)
-                                .then(typeRepository.deleteById(id))
+                        workflowRepository.existsByWorkflowTypeId(id)
+                                .flatMap(isUsed -> {
+                                    if (isUsed) {
+                                        return Mono.error(new IllegalArgumentException("WorkflowType is in use and cannot be deleted"));
+                                    }
+                                    return fieldService.deleteWorkflowTypeFieldById(id)
+                                            .then(typeRepository.deleteById(id));
+                                })
                 );
 
         return flow.as(transactionalOperator::transactional);

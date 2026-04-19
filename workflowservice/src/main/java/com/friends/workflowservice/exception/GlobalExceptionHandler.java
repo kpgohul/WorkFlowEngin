@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,7 @@ public class GlobalExceptionHandler {
 
     @SuppressWarnings("unused")
     @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public Mono<ResponseEntity<ErrorResponseDto>> handleResourceNotFoundException(
             ResourceNotFoundException ex,
             ServerWebExchange exchange) {
@@ -39,6 +41,7 @@ public class GlobalExceptionHandler {
 
     @SuppressWarnings("unused")
     @ExceptionHandler(ResourceAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public Mono<ResponseEntity<ErrorResponseDto>> handleResourceAlreadyExistException(
             ResourceAlreadyExistException ex,
             ServerWebExchange exchange) {
@@ -57,6 +60,7 @@ public class GlobalExceptionHandler {
 
     @SuppressWarnings("unused")
     @ExceptionHandler(WebExchangeBindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Mono<ResponseEntity<ErrorResponseDto>> handleValidationException(
             WebExchangeBindException ex,
             ServerWebExchange exchange) {
@@ -81,6 +85,7 @@ public class GlobalExceptionHandler {
 
     @SuppressWarnings("unused")
     @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Mono<ResponseEntity<ErrorResponseDto>> handleIllegalArgumentException(
             IllegalArgumentException ex,
             ServerWebExchange exchange) {
@@ -99,6 +104,7 @@ public class GlobalExceptionHandler {
 
     @SuppressWarnings("unused")
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Mono<ResponseEntity<ErrorResponseDto>> handleGlobalException(
             Exception ex,
             ServerWebExchange exchange) {

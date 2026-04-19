@@ -24,7 +24,7 @@ public class KafkaStepExecutionProducer {
 
     private final KafkaSender<String, String> kafkaSender;
 
-    @Value("${kafka.execution.topic:workflow-execution-event}")
+    @Value("${kafka.execution.topic}")
     private String executionTopic;
 
     public Mono<Void> publishStepAction(ActionRequest actionRequest, Long executionId, Long executionStepId) {

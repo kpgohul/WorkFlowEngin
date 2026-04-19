@@ -1,27 +1,5 @@
 spring:
   application:
     name: executionservice
-  r2dbc:
-    # Example (PostgreSQL). Change host/port/db/user/pass to your environment.
-    url: r2dbc:postgresql://localhost:5432/flowforge_execution
-    username: kprahul
-    password: kprahul143
-    pool:
-      enabled: true
-      initial-size: 5
-      max-size: 20
-  sql:
-    init:
-      # If you have schema.sql/data.sql and want Spring to run them:
-      mode: always
-
-clients:
-  workflow-service:
-    base-url: http://localhost:9091
-
-
-kafka:
-  bootstrap-servers: localhost:9099
-  execution:
-    topic: workflow-execution-event
-    group-id: execution-service-group
+  config:
+    import: configserver:${CONFIG_BASE_URL:http://localhost:9091/}

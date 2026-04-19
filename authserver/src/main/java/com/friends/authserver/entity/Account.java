@@ -18,19 +18,11 @@ import java.util.Set;
 @Setter
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-@SequenceGenerator(
-        name = "account_seq",
-        sequenceName = "account_seq",
-        initialValue = 1000000000,
-        allocationSize = 1
-)
-@Table(
-        name = "accounts",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_account_username", columnNames = "username"),
-                @UniqueConstraint(name = "uk_account_email", columnNames = "email")
-        }
-)
+@SequenceGenerator(name = "account_seq", sequenceName = "account_seq", initialValue = 1000000000, allocationSize = 1)
+@Table(name = "accounts", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_account_username", columnNames = "username"),
+        @UniqueConstraint(name = "uk_account_email", columnNames = "email")
+})
 public class Account {
 
     @Id
@@ -76,11 +68,7 @@ public class Account {
 
     @Builder.Default
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "account_role",
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "account_role", joinColumns = @JoinColumn(name = "account_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> authorities = new LinkedHashSet<>();
 
     @PrePersist

@@ -1,0 +1,83 @@
+spring:
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          debug: ${MAIL_DEBUG}
+          starttls:
+            enable: true
+
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:}:${DB_PORT}/${ACTION_DB}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_ISSUER_URI}
+
+      client:
+        registration:
+          actionservice:
+            provider: authserver
+            client-id: ${AUTH_CLIENT_SERVICE_ID}
+            client-secret: ${AUTH_CLIENT_SERVICE_SECRET}
+            authorization-grant-type: client_credentials
+            scope: service
+        provider:
+          authserver:
+            issuer-uri: ${AUTH_ISSUER_URI}
+
+  sql:
+    init:
+      mode: always
+
+app:
+  base-url: ${ACTION_BASE_URL}
+  gateway-url: ${GATEWAY_BASE_URL}
+  
+
+  mail:
+    from: ${MAIL_USERNAME}
+
+  kafka:
+    receiver:
+      enabled: true
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  actions:
+    topic: ${KAFKA_ACTION_TOPIC}
+    group-id: ${KAFAK_ACTION_CONSUMER_GROUP}
+  results:
+    topic: ${KAFAK_ACTION_RESULT_TOPIC}
+
+clients:
+  gateway:
+    base-url: ${GATEWAY_BASE_URL}
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_BASE_URL}
+
+logging:
+  level:
+    root: ${ACTION_LOG_LVL:INFO}
+  pattern:
+    console: ${LOGPATTERN_CONSOLE}
+
+server:
+  port: 9096

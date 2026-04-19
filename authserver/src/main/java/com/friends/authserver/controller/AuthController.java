@@ -5,7 +5,7 @@ import com.friends.authserver.dto.ResetPasswordRequest;
 import com.friends.authserver.exception.InvalidTokenException;
 import com.friends.authserver.exception.ResourceNotFoundException;
 import com.friends.authserver.service.PasswordResetService;
-import com.friends.authserver.util.routing.ApiRoutes;
+import com.friends.authserver.path.ApiRoutes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

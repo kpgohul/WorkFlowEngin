@@ -1,7 +1,5 @@
 package com.friends.actionservice.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.friends.actionservice.actionsdto.ActionResponse;
 import com.friends.actionservice.config.KafkaProperties;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.KafkaSender;
 import reactor.kafka.sender.SenderRecord;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +21,7 @@ public class KafkaActionResultProducer {
 
     private final KafkaSender<String, String> sender;
     private final KafkaProperties props;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public Mono<Void> send(ActionResponse response) {
         if (response == null) {
@@ -31,7 +31,7 @@ public class KafkaActionResultProducer {
         String payload;
         try {
             payload = objectMapper.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return Mono.error(e);
         }
 

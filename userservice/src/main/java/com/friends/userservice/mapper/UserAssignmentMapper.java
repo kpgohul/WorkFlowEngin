@@ -19,4 +19,3 @@ public class UserAssignmentMapper {
                 .build();
     }
 }
-

@@ -11,8 +11,10 @@ import com.friends.workflowservice.exception.ResourceNotFoundException;
 import com.friends.workflowservice.mapper.WorkflowMapper;
 import com.friends.workflowservice.repo.WorkflowRepository;
 import com.friends.workflowservice.repo.WorkflowStepRepository;
+import com.friends.workflowservice.repo.WorkflowTypeRepository;
 import com.friends.workflowservice.service.WorkflowService;
 import com.friends.workflowservice.service.WorkflowStepService;
+import com.friends.workflowservice.service.WorkflowTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -27,6 +29,8 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     private final WorkflowRepository workflowRepository;
     private final WorkflowStepRepository stepRepository;
+    private final WorkflowTypeRepository workflowTypeRepository;
+    private final WorkflowTypeService workflowTypeService;
     private final WorkflowStepService stepService;
     private final TransactionalOperator transactionalOperator;
 
@@ -36,26 +40,35 @@ public class WorkflowServiceImpl implements WorkflowService {
             if (request.getStepRule() == null || request.getStepRule().isEmpty()) {
                 return Mono.error(new IllegalArgumentException("At least one step-rule is required"));
             }
+            if (request.getWorkflowTypeId() == null) {
+                return Mono.error(new IllegalArgumentException("Workflow type ID is required"));
+            }
 
-            Mono<WorkflowResponse> flow = workflowRepository.existsByName(request.getName())
-                    .flatMap(exists -> {
-                        if (exists) {
-                            return Mono.error(new ResourceAlreadyExistException("Workflow", "name", request.getName()));
+            return workflowTypeRepository.existsById(request.getWorkflowTypeId())
+                    .flatMap(typeExists -> {
+                        if (!typeExists) {
+                            return Mono.error(new ResourceNotFoundException("WorkflowType", "id", request.getWorkflowTypeId().toString()));
                         }
 
-                        Workflow entity = WorkflowMapper.toEntityWithDefaults(request);
+                        return workflowRepository.existsByName(request.getName())
+                                .flatMap(exists -> {
+                                    if (exists) {
+                                        return Mono.error(new ResourceAlreadyExistException("Workflow", "name", request.getName()));
+                                    }
 
-                        return workflowRepository.save(entity)
-                                .flatMap(saved -> {
-                                    var stepRules = WorkflowMapper.attachWorkflowId(saved.getId(), request.getStepRule());
+                                    Workflow entity = WorkflowMapper.toEntityWithDefaults(request);
 
-                                    return stepService.createStepRules(Flux.fromIterable(stepRules))
-                                            .collectList()
-                                            .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
+                                    return workflowRepository.save(entity)
+                                            .flatMap(saved -> {
+                                                var stepRules = WorkflowMapper.attachWorkflowId(saved.getId(), request.getStepRule());
+
+                                                return stepService.createStepRules(Flux.fromIterable(stepRules))
+                                                        .collectList()
+                                                        .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
+                                            });
                                 });
-                    });
-
-            return flow.as(transactionalOperator::transactional);
+                    })
+                    .as(transactionalOperator::transactional);
         });
     }
 
@@ -73,26 +86,36 @@ public class WorkflowServiceImpl implements WorkflowService {
                                         return Mono.error(new ResourceAlreadyExistException("Workflow", "name", name));
                                     }
 
-                                    Workflow updated = WorkflowMapper.mergeForUpdate(request, existing);
+                                    Mono<Void> typeCheck = Mono.empty();
+                                    if (request.getWorkflowTypeId() != null && !request.getWorkflowTypeId().equals(existing.getWorkflowTypeId())) {
+                                        typeCheck = workflowTypeRepository.existsById(request.getWorkflowTypeId())
+                                                .flatMap(typeExists -> {
+                                                    if (!typeExists) {
+                                                        return Mono.error(new ResourceNotFoundException("WorkflowType", "id", request.getWorkflowTypeId().toString()));
+                                                    }
+                                                    return Mono.empty();
+                                                });
+                                    }
 
-                                    // Step 1: Save the updated workflow entity first
-                                    return workflowRepository.save(updated)
-                                            .flatMap(saved -> {
-                                                // Step 2a: No step-rules in request → return workflow with existing steps/rules
-                                                if (request.getStepRule() == null || request.getStepRule().isEmpty()) {
-                                                    return fetchStepRulesByWorkflowId(saved.getId())
-                                                            .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
-                                                }
+                                    return typeCheck.then(
+                                            workflowRepository.save(WorkflowMapper.mergeForUpdate(request, existing))
+                                                    .flatMap(saved -> {
+                                                        // Step 2a: No step-rules in request → return workflow with existing steps/rules
+                                                        if (request.getStepRule() == null || request.getStepRule().isEmpty()) {
+                                                            return fetchStepRulesByWorkflowId(saved.getId())
+                                                                    .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
+                                                        }
 
-                                                // Step 2b: Delete all existing steps+rules, then create fresh ones from the request DTOs
+                                                        // Step 2b: Delete all existing steps+rules, then create fresh ones from the request DTOs
                                                 // workflowId is attached programmatically — clients do NOT need to send stepId or rule id
-                                                var freshStepRules = WorkflowMapper.attachWorkflowId(saved.getId(), request.getStepRule());
+                                                        var freshStepRules = WorkflowMapper.attachWorkflowId(saved.getId(), request.getStepRule());
 
-                                                return stepRepository.findAllByWorkflowId(saved.getId())
-                                                        .concatMap(existingStep -> stepService.deleteStepRulesById(existingStep.getId()))
-                                                        .then(stepService.createStepRules(Flux.fromIterable(freshStepRules)).collectList())
-                                                        .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
-                                            });
+                                                        return stepRepository.findAllByWorkflowId(saved.getId())
+                                                                .concatMap(existingStep -> stepService.deleteStepRulesById(existingStep.getId()))
+                                                                .then(stepService.createStepRules(Flux.fromIterable(freshStepRules)).collectList())
+                                                                .map(stepRuleResponses -> WorkflowMapper.toResponse(saved, stepRuleResponses));
+                                                    })
+                                    );
                                 });
                     });
 
@@ -101,37 +124,38 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public Mono<WorkflowResponse> getWorkflowById(Long id) {
+    public Mono<WorkflowResponse> getWorkflowById(Long id, boolean includeWorkflowType) {
         return workflowRepository.findById(id)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("Workflow", "id", id.toString())))
                 .flatMap(workflow -> fetchStepRulesByWorkflowId(workflow.getId())
-                        .map(stepRuleResponses -> WorkflowMapper.toResponse(workflow, stepRuleResponses)));
+                        .map(stepRuleResponses -> WorkflowMapper.toResponse(workflow, stepRuleResponses)))
+                .flatMap(response -> includeWorkflowType
+                        ? workflowTypeService.getWorkflowTypeById(response.getWorkflowTypeId())
+                                .map(type -> {
+                                    response.setWorkflowType(type);
+                                    return response;
+                                })
+                        : Mono.just(response));
     }
 
     @Override
-    public Mono<PagedResponse<WorkflowResponse>> getAllWorkflows(int page, int size) {
+    public Mono<PagedResponse<WorkflowResponse>> getAllWorkflows(int page, int size, boolean includeWorkflowType) {
         long offset = (long) page * size;
 
         Mono<List<WorkflowResponse>> contentMono = workflowRepository.findAllPaged(size, offset)
-                .flatMap(workflow -> fetchStepRulesByWorkflowId(workflow.getId())
-                        .map(stepRuleResponses -> WorkflowMapper.toResponse(workflow, stepRuleResponses)))
+                .flatMap(workflow -> getWorkflowById(workflow.getId(), includeWorkflowType))
                 .collectList();
 
         Mono<Long> countMono = workflowRepository.countAll();
 
         return Mono.zip(contentMono, countMono)
-                .map(tuple -> {
-                    List<WorkflowResponse> content = tuple.getT1();
-                    long totalElements = tuple.getT2();
-
-                    return PagedResponse.<WorkflowResponse>builder()
-                            .content(content)
-                            .page(page + 1)
-                            .size(size)
-                            .totalElements(totalElements)
-                            .totalPages((int) Math.ceil((double) totalElements / size))
-                            .build();
-                });
+                .map(tuple -> PagedResponse.<WorkflowResponse>builder()
+                        .content(tuple.getT1())
+                        .page(page + 1)
+                        .size(size)
+                        .totalElements(tuple.getT2())
+                        .totalPages((int) Math.ceil((double) tuple.getT2() / size))
+                        .build());
     }
 
     @Override

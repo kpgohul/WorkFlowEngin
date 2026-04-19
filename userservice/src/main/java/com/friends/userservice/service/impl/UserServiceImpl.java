@@ -72,20 +72,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
+        User user = userRepo.findByAccountId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "AccountId", id.toString()));
         User updated = UserMapper.mergeForUpdate(request, user);
         return UserMapper.toResponse(userRepo.save(updated));
     }
 
     @Override
     @Transactional
-    public void deactivateUser(Long id) {
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
+    public void deactivateUser(Long accountId) {
+        User user = userRepo.findByAccountId(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "accountId", accountId.toString()));
         user.setIsActive(false);
         userRepo.save(user);
-        log.info("User deactivated: id={}", id);
+        log.info("User deactivated: accountId={}", accountId);
     }
 }
 

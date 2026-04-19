@@ -3,10 +3,4 @@ spring:
     name: eurekaserver
 
   config:
-    import: configserver:http://localhost:9091/
-
-logging:
-  level:
-    root: info
-  pattern:
-    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
+    import: configserver:${CONFIG_BASE_URL:http://localhost:9091/}

@@ -3,7 +3,9 @@ package com.friends.userservice.entity;
 import jakarta.persistence.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -40,8 +42,13 @@ public class Team {
     @Column(length = 512)
     private String description;
 
-    @Column(name = "created_by")
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
     private Long createdBy;
+
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private Long updatedBy;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

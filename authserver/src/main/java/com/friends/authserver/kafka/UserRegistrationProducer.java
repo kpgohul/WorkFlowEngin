@@ -1,9 +1,11 @@
 package com.friends.authserver.kafka;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.friends.authserver.dto.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +14,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserRegistrationProducer {
 
-    private static final String TOPIC = "user.registered";
+    @Value("${kafka.topic.user-registered}")
+    private String topic;
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     public void publish(UserRegisteredEvent event) {
         try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, event.accountId().toString(), payload)
+            String payload = jsonMapper.writeValueAsString(event);
+            kafkaTemplate.send(topic, event.accountId().toString(), payload)
                     .whenComplete((result, ex) -> {
                         if (ex != null) {
                             log.error("Failed to send user.registered event for accountId={}: {}",
@@ -33,7 +36,8 @@ public class UserRegistrationProducer {
                         }
                     });
         } catch (Exception e) {
-            log.error("Error serializing UserRegisteredEvent for accountId={}: {}", event.accountId(), e.getMessage(), e);
+            log.error("Error serializing UserRegisteredEvent for accountId={}: {}", event.accountId(), e.getMessage(),
+                    e);
         }
     }
 }
