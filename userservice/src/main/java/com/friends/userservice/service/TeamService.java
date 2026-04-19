@@ -8,18 +8,20 @@ import com.friends.userservice.dto.response.UserAssignmentResponse;
 
 public interface TeamService {
 
-    TeamResponse createTeam(CreateTeamRequest request, Long creatorUserId);
+    TeamResponse createTeam(CreateTeamRequest request);
 
     TeamResponse getTeamById(Long id);
 
     PagedResponse<TeamResponse> getAllTeams(int page, int size);
 
-    UserAssignmentResponse assignUser(AssignUserRequest request, Long assignedByUserId);
+    UserAssignmentResponse assignUser(AssignUserRequest request);
 
-    void removeUserFromTeam(Long userId);
+    void removeUserFromTeam(Long accountId);
 
     PagedResponse<UserAssignmentResponse> getUsersInTeam(Long teamId, int page, int size);
 
-    UserAssignmentResponse getAssignmentByUserId(Long userId);
+    UserAssignmentResponse getAssignmentByAccountId(Long accountId);
+
+    com.friends.userservice.dto.response.TeamUsersResponse getTeamUsers(Long teamId, Integer roleId);
 }
 

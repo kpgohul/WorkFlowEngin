@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  action-service:
+    build:
+      context: ./actionservice
+      dockerfile: Dockerfile
+
+  auth-service:
+    build:
+      context: ./authserver
+      dockerfile: Dockerfile
+
+  execution-service:
+    build:
+      context: ./executionservice
+
+  gateway-service:
+    build:
+      context: ./gatewayserver
+
+  user-service:
+    build:
+      context: ./userservice
+
+  workflow-service:
+    build:
+      context: ./workflowservice
+
+# docker-compose build

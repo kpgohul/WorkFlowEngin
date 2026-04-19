@@ -14,6 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 @ControllerAdvice
 public class GlobalException extends ResponseEntityExceptionHandler {
 
@@ -48,6 +50,28 @@ public class GlobalException extends ResponseEntityExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAuthenticationException(AuthenticationException e, WebRequest request) {
+        ErrorResponseDto dto = new ErrorResponseDto(
+                request.getDescription(false),
+                HttpStatus.UNAUTHORIZED.toString(),
+                "Unauthorized: You need to login first or provide a valid token",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dto);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException e, WebRequest request) {
+        ErrorResponseDto dto = new ErrorResponseDto(
+                request.getDescription(false),
+                HttpStatus.FORBIDDEN.toString(),
+                "Forbidden: You do not have permission to perform this action",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dto);
     }
 
     @Override

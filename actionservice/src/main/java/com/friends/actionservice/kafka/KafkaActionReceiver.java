@@ -1,6 +1,5 @@
 package com.friends.actionservice.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.friends.actionservice.actionsdto.ActionRequest;
 import com.friends.actionservice.service.ActionService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverRecord;
 
 import jakarta.annotation.PostConstruct;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 
@@ -27,10 +27,10 @@ public class KafkaActionReceiver {
     private static final String EXECUTION_STEP_ID_HEADER = "executionStepId";
 
     private final KafkaReceiver<String, String> receiver;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final ActionService actionService;
 
-    @Value("${app.kafka.receiver.enabled:true}")
+    @Value("${app.kafka.receiver.enabled}")
     private boolean receiverEnabled;
 
     @PostConstruct

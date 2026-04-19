@@ -21,6 +21,7 @@ public class CreateWorkflowTypeRequest {
     @NotBlank(message = "WorkflowType should have a name")
     private String name; //Employee Onboarding, Leave Request, etc //Human Readabble
     private String description; //Optional
+    @Builder.Default
     private WorkflowTypeStatus status = WorkflowTypeStatus.ACTIVE;
     private Integer version = 1;
     @Valid

@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value(),
                 HttpStatus.NOT_FOUND.name(),
                 ex.getMessage(),
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(dto));
@@ -49,7 +50,7 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value(),
                 HttpStatus.BAD_REQUEST.name(),
                 errorMsg,
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return Mono.just(ResponseEntity.badRequest().body(dto));
@@ -64,10 +65,44 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value(),
                 HttpStatus.BAD_REQUEST.name(),
                 ex.getMessage(),
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return Mono.just(ResponseEntity.badRequest().body(dto));
+    }
+
+    @ExceptionHandler(WebClientRequestException.class)
+    public Mono<ResponseEntity<ErrorResponseDto>> handleWebClientRequestException(
+            WebClientRequestException ex,
+            ServerWebExchange exchange) {
+
+        log.error("Upstream service unavailable at {}: {}", exchange.getRequest().getPath().value(), ex.getMessage());
+
+        ErrorResponseDto dto = new ErrorResponseDto(
+                exchange.getRequest().getPath().value(),
+                HttpStatus.BAD_GATEWAY.name(),
+                "A downstream service is unavailable. Please ensure all services are running and try again.",
+                Instant.now()
+        );
+
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(dto));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public Mono<ResponseEntity<ErrorResponseDto>> handleIllegalStateException(
+            IllegalStateException ex,
+            ServerWebExchange exchange) {
+
+        log.error("Illegal state at {}: {}", exchange.getRequest().getPath().value(), ex.getMessage());
+
+        ErrorResponseDto dto = new ErrorResponseDto(
+                exchange.getRequest().getPath().value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.name(),
+                ex.getMessage(),
+                Instant.now()
+        );
+
+        return Mono.just(ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(dto));
     }
 
     @ExceptionHandler(Exception.class)
@@ -81,7 +116,7 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
                 ex.getMessage(),
-                LocalDateTime.now()
+                Instant.now()
         );
 
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dto));

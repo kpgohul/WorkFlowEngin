@@ -9,9 +9,9 @@ public final class ApiRoutes {
     public static final String BASE     = API_BASE + API_V1;
 
     // Executions
-    public static final String BASE_EXECUTIONS              = BASE + "/executions";
-    public static final String EXECUTIONS_BY_ID             = BASE_EXECUTIONS + "/{id}";
-    public static final String EXECUTIONS_CANCEL            = BASE_EXECUTIONS + "/{id}/cancel";
+    public static final String BASE_EXECUTIONS   = BASE + "/executions";
+    public static final String EXECUTIONS_BY_ID  = BASE_EXECUTIONS + "/{id}";
+    public static final String EXECUTIONS_CANCEL = BASE_EXECUTIONS + "/{id}/cancel";
 
 }
 

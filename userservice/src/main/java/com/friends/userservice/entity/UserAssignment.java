@@ -4,7 +4,9 @@ import com.friends.userservice.appconstant.Role;
 import jakarta.persistence.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,7 +16,7 @@ import java.time.Instant;
 @Table(
         name = "user_assignments",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_user_assignment_user_id", columnNames = "user_id")
+                @UniqueConstraint(name = "uk_user_assignment_user_id", columnNames = "account_id")
         }
 )
 @EntityListeners(AuditingEntityListener.class)
@@ -36,7 +38,7 @@ public class UserAssignment {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "account_id", nullable = false, unique = true)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,8 +49,13 @@ public class UserAssignment {
     @Column(nullable = false, length = 32)
     private Role role;
 
-    @Column(name = "assigned_by")
+    @CreatedBy
+    @Column(name = "assigned_by", updatable = false)
     private Long assignedBy;
+
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private Long updatedBy;
 
     @CreatedDate
     @Column(name = "assigned_at", nullable = false, updatable = false)

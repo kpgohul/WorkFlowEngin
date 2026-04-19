@@ -30,8 +30,8 @@ public class ExecutionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<WorkflowExecutionResponse> createWorkflowExecution(
-            @Valid @RequestBody Mono<CreateWorkflowExecutionRequest> requestMono
-    ) {
+            @Valid @RequestBody Mono<CreateWorkflowExecutionRequest> requestMono) {
+
         return workflowExecutionService.createWorkflowExecution(requestMono);
     }
 
@@ -43,8 +43,7 @@ public class ExecutionController {
     @GetMapping
     public Mono<PagedResponse<WorkflowExecutionResponse>> getAllWorkflowExecutions(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         validatePaging(page, size);
         return workflowExecutionService.getAllWorkflowExecutions(page - 1, size);
     }
@@ -53,8 +52,7 @@ public class ExecutionController {
     public Mono<PagedResponse<WorkflowExecutionResponse>> getAllWorkflowExecutionsByWorkflowId(
             @RequestParam Long workflowId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         validatePaging(page, size);
         return workflowExecutionService.getAllWorkflowExecutionsByWorkflowId(workflowId, page - 1, size);
     }
@@ -63,8 +61,7 @@ public class ExecutionController {
     public Mono<PagedResponse<WorkflowExecutionResponse>> getAllWorkflowExecutionsByInitiatedBy(
             @RequestParam Long initiatedBy,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         validatePaging(page, size);
         return workflowExecutionService.getAllWorkflowExecutionsByInitiatedBy(initiatedBy, page - 1, size);
     }

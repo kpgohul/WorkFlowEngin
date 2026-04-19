@@ -1,0 +1,71 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${USER_DB}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_ISSUER_URI}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFAK_USER_CONSUMER_GROUP}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+app:
+  base-url: ${USER_BASE_URL}
+  gateway-url: ${GATEWAY_BASE_URL}
+  kafka:
+    topic:
+      userRegistered: ${KAFKA_USER_REGISTERED_TOPIC}
+    group:
+      user: ${KAFKA_USER_CONSUMER_GROUP}
+
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_BASE_URL}/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: ${USER_LOG_LVL:INFO}
+  pattern:
+    console: ${LOGPATTERN_CONSOLE}
+
+server:
+  port: 9097

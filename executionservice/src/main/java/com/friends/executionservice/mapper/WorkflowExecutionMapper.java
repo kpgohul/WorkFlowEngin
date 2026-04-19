@@ -16,7 +16,8 @@ public class WorkflowExecutionMapper {
     private WorkflowExecutionMapper() {
     }
 
-    public static WorkflowExecution toEntity(CreateWorkflowExecutionRequest request, Long workflowTypeId, Long workflowId) {
+    public static WorkflowExecution toEntity(CreateWorkflowExecutionRequest request, Long workflowTypeId,
+            Long workflowId) {
         return WorkflowExecution.builder()
                 .workflowId(request.getWorkflowId())
                 .workflowTypeId(workflowTypeId)
@@ -31,7 +32,8 @@ public class WorkflowExecutionMapper {
         return existing;
     }
 
-    public static WorkflowExecutionResponse toResponse(WorkflowExecution entity, List<WorkflowExecutionStepResponse> steps) {
+    public static WorkflowExecutionResponse toResponse(WorkflowExecution entity,
+            List<WorkflowExecutionStepResponse> steps) {
         return WorkflowExecutionResponse.builder()
                 .id(entity.getId())
                 .workflowId(entity.getWorkflowId())

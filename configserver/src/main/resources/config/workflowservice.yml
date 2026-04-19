@@ -1,0 +1,44 @@
+spring:
+  sql:
+    init:
+      mode: always # enable auto-init for R2DBC
+      schema-locations: classpath:schema.sql
+
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${WORKFLOW_DB}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_ISSUER_URI}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_BASE_URL}/eureka/
+
+logging:
+  level:
+    root: ${WORKFLOW_LOG_LVL:INFO}
+  pattern:
+    console: ${LOGPATTERN_CONSOLE}
+
+server:
+  port: 9094

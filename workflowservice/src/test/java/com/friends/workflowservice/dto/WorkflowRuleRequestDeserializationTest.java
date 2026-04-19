@@ -3,17 +3,20 @@ package com.friends.workflowservice.dto;
 import com.friends.workflowservice.dto.ruleconfig.DecisionRuleConfig;
 import com.friends.workflowservice.dto.workflow.CreateWorkflowRequest;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class WorkflowRuleRequestDeserializationTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper objectMapper = new JsonMapper();
 
     @Test
-    void shouldDeserializeNestedStepRuleWithExternalRuleType() {
+    void shouldDeserializeNestedStepRuleWithExternalRuleType() throws JsonMappingException, JsonProcessingException {
         String payload = """
                 {
                   "workflowTypeId": 1,

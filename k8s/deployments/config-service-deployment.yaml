@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+  labels:
+    app: config-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      containers:
+        - name: config-service
+          image: config-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9091
+          envFrom:
+            - secretRef:
+                name: app-secrets
+            - configMapRef:
+                name: global-config

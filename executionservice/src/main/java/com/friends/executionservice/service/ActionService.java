@@ -10,7 +10,4 @@ public interface ActionService {
 
     Mono<Void> handleStepExecution(ActionRequest request, Long executionId, Long executionStepId);
 
-    // Kafka consumer should use this method for action results.
-    Mono<Void> handleStepResult(ActionResponse response);
-
 }

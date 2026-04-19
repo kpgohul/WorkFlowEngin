@@ -2,6 +2,7 @@ package com.friends.executionservice.entity;
 
 import java.time.Instant;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -29,6 +30,7 @@ public class WorkflowExecution {
     private String error; //If any error occured at any step of workflow execution, then the same should be added here
     private String inputPayload; // will contain the json string of the user input
     private ExecutionStatus status;
+    @CreatedBy
     private Long initiatedBy;
     private Instant initiatedAt;
     private Instant terminatedAt;

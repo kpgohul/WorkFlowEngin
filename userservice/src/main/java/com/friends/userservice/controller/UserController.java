@@ -58,19 +58,19 @@ public class UserController {
     /**
      * PUT /users/{id} — update profile fields (only the owner or admin should call this)
      */
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseEntity<UserResponse> updateUser(
-            @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        Long accountId = SecurityUtils.getCurrentAccountId();
+        return ResponseEntity.ok(userService.updateUser(accountId, request));
     }
 
     /**
      * PATCH /users/{id}/deactivate
      */
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
-        userService.deactivateUser(id);
+    @PatchMapping("/{accountId}/deactivate")
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long accountId) {
+        userService.deactivateUser(accountId);
         return ResponseEntity.noContent().build();
     }
 }

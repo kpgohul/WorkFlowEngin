@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class AssignUserRequest {
 
-    @NotNull(message = "userId is required")
-    private Long userId;
+    @NotNull(message = "accountId is required")
+    private Long accountId;
 
     private Long teamId;
 

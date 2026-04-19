@@ -1,62 +1,6 @@
 spring:
   application:
     name: actionservice
-
   config:
-    import: "optional:configserver:"
+    import: configserver:${CONFIG_BASE_URL:http://localhost:9091/}
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-app-password
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/your_db
-    username: postgres
-    password: your_password
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${AUTH_ISSUER_URI:http://localhost:9099}
-
-      client:
-        registration:
-          actionservice:
-            provider: authserver
-            client-id: ${AUTH_CLIENT_SERVICE_ID:serviceaccount}
-            client-secret: ${AUTH_CLIENT_SERVICE_SECRET:ServiceSecret}
-            authorization-grant-type: client_credentials
-            scope: service
-        provider:
-          authserver:
-            issuer-uri: http://localhost:9099
-
-  sql:
-    init:
-      mode: always
-
-kafka:
-  bootstrap-servers: localhost:9099
-  actions:
-    topic: workflow-action-request
-    group-id: action-service-group
-  results:
-    topic: workflow-action-result
-
-app:
-  mail:
-    from: your-email@gmail.com
-    approval-base-url: http://localhost:8080/api/approval/respond
-
-clients:
-  userservice:
-    base-url: http://localhost:9095

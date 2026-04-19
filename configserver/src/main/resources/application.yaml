@@ -14,13 +14,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
-
-server:
-  port: 9091
+        include: health,info
 
 logging:
   level:
-    root: info
+    root: ${CONFIG_LOG_LVL:INFO}
   pattern:
-    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
+    console: ${LOGPATTERN_CONSOLE:INFO}
+
+server:
+  port: 9091

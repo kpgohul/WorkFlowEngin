@@ -24,7 +24,7 @@ public class MailSenderUtil {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Value("${app.mail.from:no-reply@example.com}")
+    @Value("${spring.mail.username}")
     private String from;
 
     public void send(Channel channel, String toEmailOrPhone, String subject, String templateName, Map<String, Object> variables) {

@@ -2,6 +2,7 @@ package com.friends.workflowservice.dto.workflow;
 
 import com.friends.workflowservice.appconstant.WorkflowStatus;
 import com.friends.workflowservice.dto.common.WorkflowStepRuleResponse;
+import com.friends.workflowservice.dto.workflowtype.WorkflowTypeResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ import java.util.List;
 public class WorkflowResponse {
     private Long id;
     private Long workflowTypeId;
+    private WorkflowTypeResponse workflowType;
     private String name;
     private String description;
     private WorkflowStatus status;

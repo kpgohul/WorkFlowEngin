@@ -11,7 +11,7 @@ import com.friends.workflowservice.util.common.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import tools.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -144,7 +144,7 @@ public class WorkflowTypeFieldServiceImpl implements WorkflowTypeFieldService {
             if (field.getAllowedValues() == null || field.getAllowedValues().isEmpty()) {
                 throw new IllegalArgumentException("allowedValues must be provided for ENUM field type");
             }
-            if (!field.getAllowedValues().contains(field.getDefaultValue())) {
+            if (field.getDefaultValue() != null && !field.getAllowedValues().contains(field.getDefaultValue())) {
                 throw new IllegalArgumentException("Default value must be one of the allowed values for ENUM field type");
             }
             Set<String> uniqueAllowedValues = new HashSet<>(field.getAllowedValues());

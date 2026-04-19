@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountStateValidator {
+public class    AccountStateValidator {
 
     public void validateForAuthentication(UserDetails userDetails) {
         if (!userDetails.isAccountNonExpired()) {

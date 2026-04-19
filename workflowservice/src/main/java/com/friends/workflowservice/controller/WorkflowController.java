@@ -36,19 +36,23 @@ public class WorkflowController {
     }
 
     @GetMapping("/{id}")
-    public Mono<WorkflowResponse> getWorkflowById(@PathVariable Long id) {
-        return workflowService.getWorkflowById(id);
+    public Mono<WorkflowResponse> getWorkflowById(
+            @PathVariable Long id,
+            @RequestParam(name = "field", defaultValue = "false") boolean includeWorkflowType
+    ) {
+        return workflowService.getWorkflowById(id, includeWorkflowType);
     }
 
     @GetMapping
     public Mono<PagedResponse<WorkflowResponse>> getAllWorkflows(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(name = "field", defaultValue = "false") boolean includeWorkflowType
     ) {
         if (page <= 0 || size <= 0) {
             return Mono.error(new IllegalArgumentException("Page must be >= 1 and size must be > 0"));
         }
-        return workflowService.getAllWorkflows(page - 1, size);
+        return workflowService.getAllWorkflows(page - 1, size, includeWorkflowType);
     }
 
     @DeleteMapping("/{id}")

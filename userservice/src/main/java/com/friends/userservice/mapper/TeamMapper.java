@@ -6,11 +6,11 @@ import com.friends.userservice.entity.Team;
 
 public class TeamMapper {
 
-    public static Team toEntity(CreateTeamRequest request, Long creatorUserId) {
+    public static Team toEntity(CreateTeamRequest request) {
         return Team.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .createdBy(creatorUserId)
+//                .createdBy(creatorUserId)
                 .build();
     }
 
