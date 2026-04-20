@@ -23,10 +23,17 @@ spec:
             - "until nc -z config-service 9091 && nc -z postgres-service 5432 && nc -z kafka 9092; do echo waiting for infra; sleep 3; done"
       containers:
         - name: workflow-service
-          image: workflow-service:latest
-          imagePullPolicy: Never
+          image: gohulkp/workflow-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 9094
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
           env:
             - name: CONFIG_BASE_URL
               valueFrom:

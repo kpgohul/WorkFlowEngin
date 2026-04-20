@@ -20,13 +20,20 @@ spec:
           command:
             - sh
             - -c
-            - "until nc -z config-service 9091 && nc -z auth-service 9099 && nc -z action-service 8080 && nc -z user-service 8080 && nc -z workflow-service 8080 && nc -z execution-service 8080 && nc -z notification-service 8080; do echo 'Waiting for all internal services to boot...'; sleep 3; done"
+            - "until nc -z config-service 9091 && nc -z auth-service 9099 && nc -z action-service 9096 && nc -z user-service 9097 && nc -z workflow-service 9094 && nc -z execution-service 9095; do echo 'Waiting for all internal services to boot...'; sleep 3; done"
       containers:
         - name: gateway-service
-          image: gateway-service:latest
-          imagePullPolicy: Never
+          image: gohulkp/gateway-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 9093
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
           env:
             - name: CONFIG_BASE_URL
               valueFrom:

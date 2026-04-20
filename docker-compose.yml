@@ -2,29 +2,48 @@ version: "3.9"
 
 services:
   action-service:
+    image: gohulkp/action-service:latest
     build:
       context: ./actionservice
       dockerfile: Dockerfile
 
   auth-service:
+    image: gohulkp/auth-service:latest
     build:
       context: ./authserver
       dockerfile: Dockerfile
 
   execution-service:
+    image: gohulkp/execution-service:latest
     build:
       context: ./executionservice
+      dockerfile: Dockerfile
 
   gateway-service:
+    image: gohulkp/gateway-service:latest
     build:
       context: ./gatewayserver
+      dockerfile: Dockerfile
 
   user-service:
+    image: gohulkp/user-service:latest
     build:
       context: ./userservice
+      dockerfile: Dockerfile
 
   workflow-service:
+    image: gohulkp/workflow-service:latest
     build:
       context: ./workflowservice
+      dockerfile: Dockerfile
 
 # docker-compose build
+
+#  eval $(minikube docker-env)
+
+#  minikube image load action-service:latest
+#  minikube image load auth-service:latest
+#  minikube image load execution-service:latest
+#  minikube image load gateway-service:latest
+#  minikube image load user-service:latest
+#  minikube image load workflow-service:latest

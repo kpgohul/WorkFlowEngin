@@ -16,10 +16,17 @@ spec:
     spec:
       containers:
         - name: config-service
-          image: config-service:latest
-          imagePullPolicy: Never
+          image: gohulkp/config-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 9091
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
           envFrom:
             - secretRef:
                 name: app-secrets

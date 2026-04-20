@@ -23,13 +23,32 @@ spec:
             - "until nc -z config-service 9091 && nc -z postgres-service 5432 && nc -z kafka 9092; do echo waiting for infra; sleep 3; done"
       containers:
         - name: action-service
-          image: action-service:latest
-          imagePullPolicy: Never
+          image: gohulkp/action-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 9096
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
           env:
             - name: CONFIG_BASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: global-config
                   key: CONFIG_BASE_URL
+
+# Resource configuration explanation:
+# This container is configured with requests of 128Mi memory and 100m CPU,
+# which guarantees the minimum resources required for scheduling. The limits
+# are set to 256Mi memory and 250m CPU, which cap the maximum usage at runtime.
+# If the application experiences CPU throttling, consider increasing the CPU limit
+# (e.g., from 250m to 500m). If the pod is terminated with an OOMKilled error,
+# increase the memory limit (e.g., from 256Mi to 512Mi). Always ensure that
+# requests are less than or equal to limits and adjust these values based on
+# actual usage observed via `kubectl top pods`.
+
+# kubectl top pods - to see the usage of the pods
